@@ -38,6 +38,8 @@ import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
+import org.wso2.transport.http.netty.vick.HeaderAdjustmentInboundHandler;
+import org.wso2.transport.http.netty.vick.HeaderAdjustmentOutboundHandler;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.common.HttpRoute;
@@ -207,6 +209,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         HttpClientUpgradeHandler upgradeHandler = new HttpClientUpgradeHandler(sourceCodec, upgradeCodec,
                 Integer.MAX_VALUE);
         pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER, upgradeHandler);
+
+        pipeline.addLast(
+                new HeaderAdjustmentInboundHandler(),
+                new HeaderAdjustmentOutboundHandler()
+        );
+
         pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
@@ -230,6 +238,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     public void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
         pipeline.addLast(Constants.HTTP_CLIENT_CODEC, new HttpClientCodec());
         addCommonHandlers(pipeline);
+
+        pipeline.addLast(
+                new HeaderAdjustmentInboundHandler(),
+                new HeaderAdjustmentOutboundHandler()
+        );
+
         pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
